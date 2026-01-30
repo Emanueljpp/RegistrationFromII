@@ -26,13 +26,24 @@ export const RegistreForm = () => {
     //metodo que atrapa lo que el usuari escribe en el input, detecta lo cambios (input controlado)
     const onInputChange = ({ target }) => {
         const { name, value } = target
-        setForm({
+        const newForm = {
             ...form,
             [name]: value
-        })
+        }
+
+        setForm(newForm)
+
+        // validamos que el usuario haya echo touched y que no haya escrito nada para mostrar errores antes del submit
+        if (touched[name]) {
+            const validationErrors = validateForm(newForm)
+            setErrors({
+                ...errors,
+                [name]: validationErrors[name] || ""
+            })
+        }
     }
 
-    // onSubmit para evitar el envio del formulario y agrego de validaciones al hacer submit
+    // onSubmit para evitar el envio del formulario y agrego de validaciones al hacer submit (no pueden intentar enviarse un formulario vacio)
     const onSubmit = (event) => {
         event.preventDefault()
 
@@ -55,18 +66,36 @@ export const RegistreForm = () => {
         })
     }
 
+    //descomponentemos el form para indicarle al input que su valor viene del estado padre
+    const { username, email, password } = form
+
     // onBlur para indica que el usuario interactuo con el componente y luego salio de este
     const handlerOnBlur = ({ target }) => {
         const { name } = target
         setTouched({
+            ...touched,
             [name]: true
         })
-
-        setTouched(false)
-
     }
-    //descomponentemos el form para indicarle al input que su valor viene del estado padre
-    const { username, email, password } = form
+
+    // Funcion de validacion para errores en los inputs
+    function validateForm(form) {
+        const validationError = {}
+        if (form.username.trim() === "") {
+            validationError.username = "campo Obligatorio"
+        } else if (form.username.length < 8) {
+            validationError.username = "El usuario debe contener al menos 8 cracteres"
+        }
+        if (form.email.trim() === "") {
+            validationError.email = "debe introducir un correo electronico completo"
+        }
+        if (form.password.trim() === "") {
+            validationError.password = "necesita una contraseña para proteger "
+        } else if (form.password.length < 8) {
+            validationError.password = "la contraseña debe tener al menos 8 cracteres"
+        }
+        return validationError
+    }
 
     return (
         <form onSubmit={onSubmit}>
@@ -79,6 +108,7 @@ export const RegistreForm = () => {
                     id="username"
                     placeholder="Write your username"
                     value={username}
+                    onBlur={handlerOnBlur}
                     onChange={onInputChange}
                 />
                 <div id="usernameHelp" className="form-text">We'll never share your username with anyone else.</div>
@@ -95,6 +125,7 @@ export const RegistreForm = () => {
                     id="email"
                     placeholder="Write your email address"
                     value={email}
+                    onBlur={handlerOnBlur}
                     onChange={onInputChange}
                 />
                 <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
@@ -111,6 +142,7 @@ export const RegistreForm = () => {
                     id="password"
                     placeholder="Write your password"
                     value={password}
+                    onBlur={handlerOnBlur}
                     onChange={onInputChange}
                 />
                 <div id="emailHelp" className="form-text">We'll never share your password with anyone else.</div>
