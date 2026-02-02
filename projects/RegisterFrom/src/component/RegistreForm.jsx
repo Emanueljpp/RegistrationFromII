@@ -72,10 +72,18 @@ export const RegistreForm = () => {
     // onBlur para indica que el usuario interactuo con el componente y luego salio de este
     const handlerOnBlur = ({ target }) => {
         const { name } = target
-        setTouched({
+        const newOnBlur = ({
             ...touched,
             [name]: true
         })
+
+        setTouched(newOnBlur)
+
+        const errorsActualizado = {
+            ...errors,
+            [name]: validateForm(form)[name] || ""
+        }
+        setErrors(errorsActualizado)
     }
 
     // Funcion de validacion para errores en los inputs
