@@ -87,23 +87,46 @@ export const RegistreForm = () => {
     }
 
     // Funcion de validacion para errores en los inputs
-    function validateForm(form) {
-        const validationError = {}
-        if (form.username.trim() === "") {
-            validationError.username = "campo Obligatorio"
-        } else if (form.username.length < 8) {
-            validationError.username = "El usuario debe contener al menos 8 cracteres"
+    function validateForm(name, value) {
+        switch (name) {
+            case "username":
+                if (value === "" || value.length < 8) {
+                    return "debe escribir un nombre de usuario y este debe tener al menos 8 caracteres"
+                }
+                return ""
+
+            case "email":
+                if (value === "") {
+                    return "debe escribir un Email para registrarse"
+                }
+                return ""
+
+            case "password":
+                if (value === "" || value.length < 8) {
+                    return "debe tener una clave para proteguer su cuenta y esta debe tener al menos 8 caracteres"
+                }
+                return ""
+            default:
+                console.log("compo no coincide")
+                return ""
         }
-        if (form.email.trim() === "") {
-            validationError.email = "debe introducir un correo electronico completo"
-        }
-        if (form.password.trim() === "") {
-            validationError.password = "necesita una contraseña para proteger "
-        } else if (form.password.length < 8) {
-            validationError.password = "la contraseña debe tener al menos 8 cracteres"
-        }
-        return validationError
     }
+    // const validationError = {}
+    // if (form.username.trim() === "") {
+    //     validationError.username = "campo Obligatorio"
+    // } else if (form.username.length < 8) {
+    //     validationError.username = "El usuario debe contener al menos 8 cracteres"
+    // }
+    // if (form.email.trim() === "") {
+    //     validationError.email = "debe introducir un correo electronico completo"
+    // }
+    // if (form.password.trim() === "") {
+    //     validationError.password = "necesita una contraseña para proteger "
+    // } else if (form.password.length < 8) {
+    //     validationError.password = "la contraseña debe tener al menos 8 cracteres"
+    // }
+    // return validationError
+
 
     return (
         <form onSubmit={onSubmit}>
@@ -167,13 +190,3 @@ export const RegistreForm = () => {
     )
 }
 
-
-// const handlerOnBlur = ({ target }) => {
-//         const { name } = target
-//         setTouched({
-//             [name]: true
-//         })
-
-//         setTouched(false)
-
-//     }
