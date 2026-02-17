@@ -1,144 +1,81 @@
-import { useState } from "react"
+import { useFrom } from "../hooks/useFrom"
 
 export const RegistreForm = () => {
 
-    // estado principal, manejo de inputs
-    const [form, setForm] = useState({
+    const initialValue = {
         username: "",
         email: "",
         password: ""
-    })
-
-    // Estado de errores
-    const [errors, setErrors] = useState({
-        username: "",
-        email: "",
-        password: ""
-    })
-
-    // Estado de interaccion real con los inputs
-    const [touched, setTouched] = useState({
-        username: false,
-        email: false,
-        password: false
-    })
-
-    //metodo que atrapa lo que el usuari escribe en el input, detecta lo cambios (input controlado)
-    const onInputChange = ({ target }) => {
-        const { name, value } = target
-        const newForm = {
-            ...form,
-            [name]: value
-        }
-
-        setForm(newForm)
-
-        // validamos que el usuario haya echo touched y que no haya escrito nada para mostrar errores antes del submit
-        if (touched[name]) {
-            const validationErrors = validateForm(newForm)
-            setErrors({
-                ...errors,
-                [name]: validationErrors[name] || ""
-            })
-        }
     }
 
-    // onSubmit para evitar el envio del formulario y agrego de validaciones al hacer submit (no pueden intentar enviarse un formulario vacio)
-    const onSubmit = (event) => {
-        event.preventDefault()
+    const callback = (form) => {
+        console.log("Validacion exitosa:", form)
 
-        const newErrors = {
-            username: form.username.trim() === "" ? "Campo de usuario obligatorio" : "",
-            email: form.email.trim() === "" ? "Campo de email address obligatorio" : "",
-            password: form.password.trim() === "" ? "Campo de password obligatorio" : ""
-        }
-
-        setErrors(newErrors)
-
-        const hasErrors = Object.values(newErrors).some(errors => errors !== "")
-        if (hasErrors) return
-
-        // limpiamos el input para su proximo uso
-        setForm({
-            username: "",
-            email: "",
-            password: ""
-        })
-    }
-
-    //descomponentemos el form para indicarle al input que su valor viene del estado padre
-    const { username, email, password } = form
-
-    // onBlur para indica que el usuario interactuo con el componente y luego salio de este
-    const handlerOnBlur = ({ target }) => {
-        const { name } = target
-        const newOnBlur = ({
-            ...touched,
-            [name]: true
-        })
-
-        setTouched(newOnBlur)
-
-        const errorsActualizado = {
-            ...errors,
-            [name]: validateForm(form)[name] || ""
-        }
-        setErrors(errorsActualizado)
+        // aqui normalmnete iria:
+        // fetch, axios, API, etc...
     }
 
     // Funcion de validacion para errores en los inputs
-    function validateForm(name, value) {
-        switch (name) {
-            case "username":
-                if (value === "" || value.length < 8) {
-                    return "debe escribir un nombre de usuario y este debe tener al menos 8 caracteres"
-                }
-                return ""
+    function validateForm(nameOfForm, value) {
 
-            case "email":
-                if (value === "") {
-                    return "debe escribir un Email para registrarse"
-                }
-                return ""
+        if (typeof nameOfForm === "string") {
 
-            case "password":
-                if (value === "" || value.length < 8) {
-                    return "debe tener una clave para proteguer su cuenta y esta debe tener al menos 8 caracteres"
-                }
-                return ""
-            default:
-                console.log("compo no coincide")
-                return ""
+            const name = nameOfForm
+
+            switch (name) {
+                case "username":
+                    if (value === "" || value.length < 8) {
+                        return "debe escribir un nombre de usuario y este debe tener al menos 8 caracteres"
+                    }
+                    return ""
+
+                case "email":
+                    if (value === "") {
+                        return "debe escribir un Email para registrarse"
+                    }
+                    return ""
+
+                case "password":
+                    if (value === "" || value.length < 8) {
+                        return "debe tener una clave para proteguer su cuenta y esta debe tener al menos 8 caracteres"
+                    }
+                    return ""
+
+                default:
+                    console.log("campo no coincide")
+                    return ""
+            }
+        }
+        const form = nameOfForm
+
+        return {
+            username: validateForm("username", form.username),
+            email: validateForm("email", form.email),
+            password: validateForm("password", form.password)
         }
     }
-    // const validationError = {}
-    // if (form.username.trim() === "") {
-    //     validationError.username = "campo Obligatorio"
-    // } else if (form.username.length < 8) {
-    //     validationError.username = "El usuario debe contener al menos 8 cracteres"
-    // }
-    // if (form.email.trim() === "") {
-    //     validationError.email = "debe introducir un correo electronico completo"
-    // }
-    // if (form.password.trim() === "") {
-    //     validationError.password = "necesita una contraseña para proteger "
-    // } else if (form.password.length < 8) {
-    //     validationError.password = "la contraseña debe tener al menos 8 cracteres"
-    // }
-    // return validationError
+
+    // conexcion con el Hooks
+    const {
+        form,
+        errors,
+        touched,
+        onInputChange,
+        onSubmit,
+        handlerOnBlur } = useFrom(initialValue, validateForm, callback)
 
 
     return (
         <form onSubmit={onSubmit}>
             <div className="mb-3">
-                <label htmlFor="username" className="form-label">Email address</label>
+                <label htmlFor="username" className="form-label">User name</label>
                 <input
                     type="text"
                     className="form-control"
                     name="username"
                     id="username"
                     placeholder="Write your username"
-                    value={username}
+                    value={form.username}
                     onBlur={handlerOnBlur}
                     onChange={onInputChange}
                 />
@@ -155,7 +92,7 @@ export const RegistreForm = () => {
                     name="email"
                     id="email"
                     placeholder="Write your email address"
-                    value={email}
+                    value={form.email}
                     onBlur={handlerOnBlur}
                     onChange={onInputChange}
                 />
@@ -172,7 +109,7 @@ export const RegistreForm = () => {
                     name="password"
                     id="password"
                     placeholder="Write your password"
-                    value={password}
+                    value={form.password}
                     onBlur={handlerOnBlur}
                     onChange={onInputChange}
                 />
